@@ -1,5 +1,6 @@
-from fastapi import FastAPI, UploadFile, File, Form, Header, HTTPException, status
+from fastapi import FastAPI, UploadFile, Depends, File, Form, Header, HTTPException, status
 from fastapi.responses import JSONResponse
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
@@ -98,16 +99,16 @@ class HackRxRequest(BaseModel):
 class HackRxResponse(BaseModel):
     answers: List[str]
 
+bearer_scheme = HTTPBearer()
+
 # === HackRx API ===
 @app.post("/api/v1/hackrx/run", response_model=HackRxResponse, tags=["HackRx"])
 async def hackrx_run(
     payload: HackRxRequest,
-    authorization: str = Header(None)
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)
 ):
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing or invalid Authorization header")
-
-    token = authorization.removeprefix("Bearer ").strip()
+    
+    token = credentials.credentials.strip()
     if token != settings.API_AUTH_TOKEN:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
