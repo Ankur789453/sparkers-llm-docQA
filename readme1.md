@@ -1,202 +1,160 @@
-# 📄 HackRx 6.0 — LLM-powered Query-Retrieval System
+# 📄🧠 HackRx DocQA - LLM-powered Document Q&A API
 
-
-
-A modern FastAPI backend that allows users to:
-
-- Upload documents (PDF/DOCX)
-- Ask complex domain-specific questions (e.g., Insurance/Legal)
-- Get accurate answers powered by **semantic search**, **FAISS**, and **LLMs** like GPT & Mixtral
+An intelligent document question-answering backend using FastAPI + LangChain + Groq + FAISS, designed for HackRx 6.0. It allows users to upload insurance/legal/policy documents (PDF), ask domain-specific questions, and get structured, context-rich answers with rationale and source tracking.
 
 ---
 
 ## 🚀 Features
 
-✅ Upload & parse documents (PDF/DOCX)\
-✅ Semantic chunk-based retrieval via FAISS\
-✅ Clause-aware QA with rationale and sources\
-✅ Switch between OpenAI and Groq (Mixtral) backends\
-✅ Public `/hackrx/run` endpoint for HackRx integration
+- 🧠 **LLM-powered**: Uses Groq-hosted models (e.g. LLaMA3 or Mixtral) for fast, accurate answers.
+- 🔍 **Semantic Search**: FAISS-based retrieval over chunked document embeddings.
+- 📜 **Source Tracking**: Answers are based on actual chunks from the document.
+- 🔗 **LangChain Refine Chain**: Enhances answers with context aggregation.
+- 🧾 **Structured JSON Responses**: Answer + rationale + source metadata.
+- 🛡️ **Secure Access**: Token-based Bearer authentication.
 
 ---
 
-## 🛠️ Project Structure
+## 🏁 Quickstart
 
-```
-Hackrx_6.0-main/
-│
-├── .env                      # API keys and configuration
-├── payload.json              # Sample payload for testing
-├── requirements.txt          # Project dependencies
-├── test_request.py           # Script to test HackRx endpoint
-│
-├── app/
-│   ├── main.py               # FastAPI app with endpoints
-│   ├── app_config.py         # Environment variables (pydantic)
-│
-│   ├── parsers/
-│   │   └── file_parser.py    # Local DOCX/PDF parsing
-│
-│   ├── retrieval/
-│   │   ├── search_engine.py  # Semantic search logic
-│   │   └── embedding_engine.py  # FAISS vector indexing
-│
-│   ├── llm_wrappers/
-│   │   ├── qa_engine.py      # Uses Groq/OpenAI for answering
-│   │   └── llm_engine.py     # Model handler (extensible)
-│
-│   ├── models/
-│   │   └── schema.py         # Request/response models
-│
-│   └── utils/
-│       ├── text_splitter.py      # Chunking logic
-│       └── download_and_parse.py # Remote PDF downloader
-```
-
----
-
-## 🔧 Setup & Installation
+### 🔧 1. Clone the Repo
 
 ```bash
-# 1. Create virtualenv (optional)
-conda create -n hackrx python=3.10 -y
-conda activate hackrx
-
-# 2. Install dependencies
-pip install -r requirements.txt
-
-# 3. Add your API keys to `.env`
+git clone https://github.com/<your-username>/hackrx-docqa.git
+cd hackrx-docqa
 ```
 
-### .env Example:
+### 📦 2. Install Requirements
+```bash
+pip install -r requirements.txt
+```
 
+### 🔐 3. Create a .env File
 ```env
-OPENAI_API_KEY=sk-...
-GROQ_API_KEY=gsk-...
-GROQ_MODEL_NAME=llama3-70b-8192
-OPENAI_MODEL_NAME=gpt-3.5-turbo
+OPENAI_API_KEY=your-openai-api-key
+GROQ_API_KEY=your-groq-api-key
+API_AUTH_TOKEN=your-secret-token
 TEMPERATURE=0.1
 MAX_TOKENS=1024
-CHUNK_SIZE=500
-CHUNK_OVERLAP=50
-API_AUTH_TOKEN=Bearer your_api_token_here
+CHUNK_SIZE=1000
+CHUNK_OVERLAP=150
+DEBUG=True
 ```
 
----
-
-## ⚙️ Run the Backend
-
+###▶️ 4. Run the Server
 ```bash
-uvicorn app.main:app --reload
+uvicorn main:app --reload
 ```
+The API will be live at: http://localhost:8000
 
 ---
 
-## 📤 Upload Endpoint
+## 📬 API Documentation
 
-```
-POST /upload
-```
+### 🔹 /api/v1/hackrx/run (POST)
+This endpoint accepts a document URL and list of questions, and returns extracted answers from the document using an LLM with retrieval-augmented generation (RAG).
 
-> Uploads a document and indexes it using FAISS.
+###✅ Request Format
+Headers (Optional if Authorization is moved to JSON body):
 
-### Response:
-
-```json
-{
-  "message": "✅ File uploaded and indexed successfully",
-  "file_id": "abc-123-uuid",
-  "file_name": "policy.pdf",
-  "chunk_count": 21
-}
+```pgsql
+Content-Type: application/json
+Authorization: Bearer <your-token>
 ```
 
----
-
-## ❓ Ask Endpoint
-
-```
-POST /ask
-```
-
-> Ask a single question based on previously uploaded document.
-
-**Form Data:**
-
-- `question`: Your query
-- `file_id`: ID returned during upload
-- `provider`: `groq` or `openai` (default: `groq`)
-
----
-
-## 🔥 HackRx Public API
-
-```
-POST /hackrx/run
-```
-
-> Directly hit the LLM-powered query system with a PDF URL + multiple questions.
-
-### Payload:
-
+#### JSON Body
 ```json
 {
   "documents": "https://example.com/policy.pdf",
   "questions": [
-    "What is the waiting period for cataract?",
-    "Are maternity expenses covered?"
+    "What is the waiting period for pre-existing diseases?",
+    "Does this policy cover maternity expenses?"
   ]
 }
 ```
-
-### Response:
+If using inline auth:
 
 ```json
 {
-  "answers": [
-    "24 months",
-    "Yes, up to ₹25,000 with conditions"
-  ]
+  "authorization": "Bearer your-token-here",
+  "documents": "https://example.com/policy.pdf",
+  "questions": ["..."]
 }
 ```
 
+### 🔁 Response Format
+```json
+{
+  "answers": [
+    "The waiting period for pre-existing diseases is 36 months...",
+    "Yes, maternity expenses are covered after 24 months of continuous coverage..."
+  ]
+}
+```
 ---
 
-## 📦 Included Files
+## 🧠 Tech Stack
+FastAPI – Web framework for API
 
-- `payload.json` → For testing `/hackrx/run`
-- `test_request.py` → Script to simulate external HackRx call
-- `README.md` → You're reading it 📝
-- `Procfile` → For deployment (Heroku compatible)
+LangChain – Prompt chaining and LLM tools
 
----
+Groq – High-speed inference with Mixtral / LLaMA3
 
-## 🧠 Powered By
+FAISS – Vector similarity search for document chunks
 
-- **FAISS** for vector similarity
-- **SentenceTransformers** for embeddings
-- **Groq (Mixtral)** & **OpenAI (GPT-3.5)** for answering
-- **FastAPI** for blazing-fast backend
+PyMuPDF / PyPDF2 – Document parsing
 
----
+HuggingFace Embeddings – Sentence transformers
 
-## 🏁 Future Upgrades
-
--
-
----
-
-## 💙 Made for HackRx 6.0 by Ankur Jangra (Billu)
-
-> "Query Smart, Retrieve Smarter."
+Pydantic – Request/response validation
 
 ---
 
-## 🌐 License
+## 🔒 Security
+All endpoints requiring document access are protected by a Bearer token.
 
-MIT License. Use freely with attribution.
+You can set your token in .env and validate it in requests via Authorization header.
 
+## 🧪 Testing
+Use Postman or curl to test the endpoint:
+
+```bash
+curl -X POST http://localhost:8000/api/v1/hackrx/run \
+  -H "Authorization: Bearer your-token-here" \
+  -H "Content-Type: application/json" \
+  -d '{"documents":"https://example.com/doc.pdf","questions":["What is the grace period?"]}'
+```
+
+## 📦 Deployment
+To run in production:
+
+```bash
+uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+You can deploy on:
+
+Render
+
+Railway
+
+[AWS EC2 / Lambda]
+
+[Google Cloud Run]
+
+[Azure App Service]
+
+## 🤝 Contributing
+Pull requests are welcome! For major changes, open an issue first to discuss what you want to add.
+
+## 🏆 Built With ❤️ for HackRx 6.0
+By Sparkers — powered by OpenAI, Groq, LangChain, and FAISS.
+
+📜 License
+This project is licensed under the MIT License. See the LICENSE file for more details.
+
+```yaml
 ---
 
-> Need help or want to contribute? Open a PR or raise an issue 🙌
-
+Let me know if you want me to generate this as a file (e.g. `README.md`) or include a `badge`, `demo GIF`, or link to a frontend.
+```
