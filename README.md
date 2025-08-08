@@ -34,6 +34,8 @@ pip install -r requirements.txt
 OPENAI_API_KEY=your-openai-api-key
 GROQ_API_KEY=your-groq-api-key
 API_AUTH_TOKEN=your-secret-token
+GROQ_MODEL_NAME=llama3-70b-8192
+OPENAI_MODEL_NAME=gpt-3.5-turbo
 TEMPERATURE=0.1
 MAX_TOKENS=1024
 CHUNK_SIZE=1000
