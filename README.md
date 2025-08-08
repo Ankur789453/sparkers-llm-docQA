@@ -20,8 +20,8 @@ An intelligent document question-answering backend using FastAPI + LangChain + G
 ### 🔧 1. Clone the Repo
 
 ```bash
-git clone https://github.com/<your-username>/hackrx-docqa.git
-cd hackrx-docqa
+git clone https://github.com/Ankur789453/sparkers-llm-docQA.git
+cd sparkers-llm-docQA 
 ```
 
 ### 📦 2. Install Requirements
