@@ -1,0 +1,44 @@
+# --- Core Runtime ---
+python-dotenv>=1.0.1         # Load environment variables
+pydantic>=2.6.4              # Data validation and schema
+
+# --- FastAPI Backend ---
+fastapi>=0.116.1             # Web API framework
+uvicorn[standard]>=0.35.0    # ASGI server
+httpx>=0.27.0                # Async HTTP client
+python-multipart>=0.0.9      # For file upload parsing
+
+# --- LLM Orchestration ---
+langchain>=0.1.17            # LLM chains, agents
+langchain-core>=0.1.45       # Core LangChain primitives
+langchain-openai>=0.1.6      # OpenAI models with LangChain
+langchain-groq>=0.1.0        # Groq models with LangChain
+
+# --- Direct LLM SDKs ---
+openai>=1.30.5               # Direct OpenAI access
+groq>=0.1.3                  # Direct Groq access
+
+# --- Embedding & Retrieval ---
+sentence-transformers>=2.2.2 # Embedding models
+faiss-cpu>=1.7.4             # Fast local vector search
+
+# --- Document Parsing ---
+PyPDF2>=3.0.1                # Basic PDF parsing
+unstructured>=0.12.3         # DOCX, HTML, TXT, PDFs
+tika>=1.24                   # OCR/complex PDF fallback
+
+# --- Utilities ---
+numpy==1.24.0                # For FAISS compatibility
+pandas>=2.2.2                # CSV/tabular data
+tqdm>=4.66.4                 # CLI progress bars
+rich>=13.7.1                 # Pretty logs & tables
+orjson>=3.10.3               # Fast JSON
+cachetools>=5.3.3            # LRU/TTL caching (agent memory)
+
+# --- Optional Parsing ---
+python-docx>=1.2.0           # DOCX file support
+pdf2image>=1.17.0            # If you're doing PDF OCR
+pytesseract>=0.3.13          # If you're using OCR
+
+# --- Dev Tools (optional) ---
+ipykernel>=6.29.4            # For local Jupyter if needed
